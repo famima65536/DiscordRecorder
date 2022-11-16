@@ -1,0 +1,32 @@
+{
+  "name": "discordrecorder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/main.js",
+  "scripts": {
+    "test": "ts-node src/main.ts",
+    "command-deploy": "ts-node tools/command-deployer.ts",
+    "start": "node build/src/main.js",
+    "compile": "tsc -p ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/opus": "^0.8.0",
+    "@discordjs/voice": "^0.13.0",
+    "discord.js": "^14.6.0",
+    "dotenv": "^16.0.3",
+    "libsodium-wrappers": "^0.7.10"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "@typescript-eslint/eslint-plugin": "^5.43.0",
+    "eslint": "^8.27.0",
+    "eslint-config-standard-with-typescript": "^23.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.5.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.3"
+  }
+}

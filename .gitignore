@@ -1,0 +1,4 @@
+.env
+/recordings
+/build
+/node_modules
