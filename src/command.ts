@@ -1,8 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { OpusEncoder } from '@discordjs/opus';
 import { AudioReceiveStream, EndBehaviorType, getVoiceConnection, joinVoiceChannel } from '@discordjs/voice';
 import { CacheType, CommandInteraction, GuildMember } from 'discord.js';
-import fs, { mkdir } from 'node:fs';
+import fs from 'node:fs';
 export abstract class BaseCommand {
     public abstract getSlashCommandBuilder(): Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
     public abstract execute(interaction: CommandInteraction): void;
@@ -29,7 +28,7 @@ export class JoinCommand extends BaseCommand {
             return
         }
 
-        
+
         const channel = member.voice.channel
 
         if (!channel.joinable) {
@@ -58,15 +57,9 @@ export class JoinCommand extends BaseCommand {
             audioStreams.set(userId, audioStream)
             const memberOutdir = recordingOutdir + String(userId) + "/"
             await fs.promises.mkdir(memberOutdir, { recursive: true })
-            const encoder = new OpusEncoder(48000, 2)
             const path = memberOutdir + String(Date.now() - start) + ".pcm"
             const fileStream = fs.createWriteStream(path)
-            audioStream.on("data", chunk => {
-                fileStream.write(encoder.decode(chunk))
-            })
-            audioStream.on("end", () => {
-                fileStream.end()
-            })
+            audioStream.pipe(fileStream)
         })
 
         connection.receiver.speaking.on("end", async userId => {
@@ -91,13 +84,12 @@ export class ByeCommand extends BaseCommand {
         }
         const connection = getVoiceConnection(interaction.guild.id)
         if (connection === undefined) {
-            interaction.reply({content: 'vcに接続していません', ephemeral: true})
+            interaction.reply({ content: 'vcに接続していません', ephemeral: true })
             return
         }
 
         connection.disconnect()
         interaction.reply('vcから切断されました。録音を終了します。')
 
-        
     }
 }
