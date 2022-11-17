@@ -6,6 +6,7 @@ WORKDIR /discord-recorder
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY src/ ./src/
+RUN npm install -g node-gyp
 RUN npm install
 RUN npm run compile
 RUN npm install --omit=dev
@@ -16,6 +17,6 @@ WORKDIR /discord-recorder
 ADD package*.json ./
 COPY --from=builder /discord-recorder/build/ build/
 COPY --from=builder /discord-recorder/node_modules node_modules
-RUN apk add --no-cache nodejs
+RUN apk add --no-cache ffmpeg opus-dev nodejs
 VOLUME ["/recordings"]
 CMD [ "node", "build/main.js" ]

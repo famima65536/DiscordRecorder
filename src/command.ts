@@ -1,7 +1,8 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
+import { OpusEncoder } from '@discordjs/opus';
 import { AudioReceiveStream, EndBehaviorType, getVoiceConnection, joinVoiceChannel } from '@discordjs/voice';
 import { CacheType, CommandInteraction, GuildMember } from 'discord.js';
-import fs from 'node:fs';
+import fs, { mkdir } from 'node:fs';
 export abstract class BaseCommand {
     public abstract getSlashCommandBuilder(): Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
     public abstract execute(interaction: CommandInteraction): void;
@@ -57,9 +58,15 @@ export class JoinCommand extends BaseCommand {
             audioStreams.set(userId, audioStream)
             const memberOutdir = recordingOutdir + String(userId) + "/"
             await fs.promises.mkdir(memberOutdir, { recursive: true })
+            const encoder = new OpusEncoder(48000, 2)
             const path = memberOutdir + String(Date.now() - start) + ".pcm"
             const fileStream = fs.createWriteStream(path)
-            audioStream.pipe(fileStream)
+            audioStream.on("data", chunk => {
+                fileStream.write(encoder.decode(chunk))
+            })
+            audioStream.on("end", () => {
+                fileStream.end()
+            })
         })
 
         connection.receiver.speaking.on("end", async userId => {
